@@ -1,0 +1,152 @@
+from enum import Enum
+
+
+from fastapi import FastAPI, HTTPException
+
+from pydantic import BaseModel
+
+
+app = FastAPI()
+
+
+class Service(Enum):
+
+    SERVICE_HOME_BB = "Home Broadband"
+
+    SERVICE_MOBILE = "Mobile Service"
+
+    SERVICE_ENT_SOLS = "Enterprise Solutions"
+
+
+class Operation(Enum):
+
+    OPERATIONS_TOPOLOGY = "Network and Service Topology Management"
+
+    OPERATIONS_NOC = "Network Operations Center"
+
+    OPERATIONS_NA = "Network Assurance"
+
+    OPERATIONS_FIELD = "Field Operations"
+
+    OPERATIONS_INVENTORY = "Inventory Management"
+
+    OPERATIONS_SO = "Service Operations"
+
+    OPERATIONS_CE = "Customer Experience"
+
+    OPERATIONS_OPT_RAN = "Network Optimization for RAN"
+
+    OPERATIONS_OPT_CORE = "Network Optimization for Core network"
+
+    OPERATIONS_OPT_IP = "Network Optimization for IP and Backhaul"
+
+    OPERATIONS_OPT_QOE = "Network Optimization for QoE"
+
+
+class Dimension(Enum):
+
+    PARTY = "Party"
+
+    TECHNOLOGY = "Technology"
+
+    CULTURE = "Culture"
+
+    STRATEGY = "Strategy"
+
+    OPERATIONS = "Operations"
+
+    DATA = "Data"
+
+
+class Capability(BaseModel):
+
+    capability_id: int
+
+    capability_name: str
+
+    capability_desc: str
+
+    capability_score:float
+
+    service: Service
+
+    operation: Operation
+
+    dimension: Dimension    
+
+
+class SubCapability(BaseModel):
+
+    sub_capability_id: float
+
+    name: str
+
+    definition: str
+
+    description: str
+
+    sub_capability_score: float
+
+    capability_id: float
+
+
+class Question(BaseModel):
+
+    question_id: float
+
+    weighting: int
+
+    question_description: str
+
+    sub_capability_id: float
+
+
+class Attribute(BaseModel):
+
+    attribute_id: float
+
+    attribute_level: str
+
+    attribute_description: str
+
+    question_id: float
+
+    attribute_selected: bool
+
+    attribute_score: float
+
+ 
+
+capabilities = {
+
+    1:Capability(capability_id="1", capability_name="Party", capability_desc="The extent to which the enterprise’s Autonomous Operations initiative is delivering value to parties and enabling to deliver and lead customer experiences.", capability_score=5.0, service="SERVICE_HOME_BB", operations="OPERATIONS_NA", dimension="DATA"),
+
+    2:Capability(capability_id="2", capability_name="Technology", capability_desc="The extent to which the enterprise is leveraging and advancing Autonomous Operations technologies to support strategy, culture, data customer, and operations.", capability_score=5.0, service="SERVICE_HOME_BB", operations="OPERATIONS_NA", dimension="DATA"),
+
+    3:Capability(capability_id="3", capability_name="Culture", capability_desc="The extent to which the enterprise’s way-of-working drives a thriving “environment” and promotes stakeholder value.", capability_score=5.0, service="SERVICE_HOME_BB", operations="OPERATIONS_NA", dimension="DATA"),
+
+    4:Capability(capability_id="4", capability_name="Strategy", capability_desc="The extent to which the enterprise strategy drives its expected business value of Autonomous Operations initiatives in alignment to outcomes.", dimension_capability_scorescore=5.0, service="SERVICE_HOME_BB", operations="OPERATIONS_NA", dimension="DATA"),
+
+    5:Capability(capability_id="5", capability_name="Operations", capability_desc="The extent to which the enterprise realizes effective fulfillment and assurance journeys in value streams / chains / networks.", capability_score=5.0, service="SERVICE_HOME_BB", operations="OPERATIONS_NA", dimension="DATA"),
+
+    6:Capability(capability_id="6", capability_name="Data", capability_desc="The extent to which the enterprise is leveraging and advancing use of Data to drive its operating model success.", capability_score=5.0, service="SERVICE_HOME_BB", operations="OPERATIONS_NA", dimension="DATA")
+
+}
+
+
+@app.get("/")
+
+def index() -> dict[str, dict[int, Capability]]:
+
+    return {"capabilities":capabilities}
+
+
+@app.get("/capabilities/{capability_id}")
+
+def query_capability_by_id(capability_id: float) -> Capability:
+
+    if capability_id not in capabilities:
+
+        raise HTTPException(status_code=404)
+
+    return capabilities[capability_id]
